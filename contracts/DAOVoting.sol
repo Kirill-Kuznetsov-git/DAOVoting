@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./IERC20.sol";
+import "hardhat/console.sol";
 
 contract DAOVoting {
     using Counters for Counters.Counter;
@@ -116,6 +117,9 @@ contract DAOVoting {
         if (votings[votingId].totalVotes >= minimumQuorum && votings[votingId].positiveVotes > votings[votingId].totalVotes - votings[votingId].positiveVotes) {
             callFunction(votings[votingId].recipient, votings[votingId].callData);
             called = true;
+        }
+        if (lastVoting[msg.sender] == votingId) {
+            lastVoting[msg.sender] = votingID.current() + 5;
         }
         votings[votingId].ended = true;
     }
