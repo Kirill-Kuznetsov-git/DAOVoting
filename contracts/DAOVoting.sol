@@ -2,12 +2,11 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "./IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "hardhat/console.sol";
 
 contract DAOVoting {
     using Counters for Counters.Counter;
-
     Counters.Counter private votingID;
     address private owner;
     IERC20 public token;
@@ -37,6 +36,9 @@ contract DAOVoting {
 
     mapping(uint256 => Voting) public votings;
 
+    event VotingCreated(uint256 id, string description);
+    event VotingEnded(uint256 id, bool result);
+
     modifier OnlyOwner() {
         require(msg.sender == owner, "not an owner");
         _;
@@ -62,6 +64,17 @@ contract DAOVoting {
         debatingPeriodDuration = _debatingPeriodDuration;
     }
 
+    function getBalance() external view returns(uint256) {
+        return balanceTotal[msg.sender];
+    }
+
+    function getFrozenBalance() external view returns(uint256) {
+        if (votings[lastVoting[msg.sender]].ended) {
+            return 0;
+        }
+        return votings[lastVoting[msg.sender]].participants[msg.sender];
+    }
+
     function addChairMan(address account) public OnlyOwner {
         isChairMan[account] = true;
     }
@@ -80,7 +93,7 @@ contract DAOVoting {
 
     function deposit(uint256 funds) external {
         require(token.balanceOf(msg.sender) >= funds, "not enough funds");
-        token.transferFrom(msg.sender, address(this), funds);
+        SafeERC20.safeTransferFrom(token, msg.sender, address(this), funds);
         balanceTotal[msg.sender] += funds;
     }
 
@@ -92,12 +105,14 @@ contract DAOVoting {
         newVoting.courseVote = 1;
         newVoting.startAt = block.timestamp;
         newVoting.endAt = block.timestamp + debatingPeriodDuration;
+        emit VotingCreated(votingID.current(), description);
         votingID.increment();
     }
 
     function vote(uint256 votingId, bool voteValue) external {
         require(votingID.current() >= votingId, "such voting does not exist");
-        require(balanceTotal[msg.sender] / votings[votingId].courseVote != 0, "you don't froze enough tokens");
+        require(votings[votingId].courseVote != 0, "course vote equal to 0");
+        require((balanceTotal[msg.sender] / votings[votingId].courseVote) != 0, "you don't froze enough tokens");
         require(block.timestamp < votings[votingId].endAt, "already ended");
         require(votings[votingId].participants[msg.sender] == 0, "you already voted");
 
@@ -118,10 +133,9 @@ contract DAOVoting {
             callFunction(votings[votingId].recipient, votings[votingId].callData);
             called = true;
         }
-        if (lastVoting[msg.sender] == votingId) {
-            lastVoting[msg.sender] = votingID.current() + 5;
-        }
+
         votings[votingId].ended = true;
+        emit VotingEnded(votingId, votings[votingId].ended);
     }
 
     function callFunction(address recipient, bytes memory signature) internal {
@@ -130,6 +144,9 @@ contract DAOVoting {
     }
 
     function withdraw() external {
+        if (votings[lastVoting[msg.sender]].ended) {
+            lastVoting[msg.sender] = votingID.current() + 5;
+        }
         token.transfer(msg.sender, balanceTotal[msg.sender] - votings[lastVoting[msg.sender]].participants[msg.sender] * votings[lastVoting[msg.sender]].courseVote);
     }
 }

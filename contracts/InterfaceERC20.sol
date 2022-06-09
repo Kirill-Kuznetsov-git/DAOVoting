@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-interface IERC20 {
+
+interface InterfaceERC20 {
     function giveAdminRole(address newAdmin) external;
     function name() external view returns(string memory);
     function symbol() external view returns(string memory);
@@ -16,7 +17,4 @@ interface IERC20 {
 
     function burn(address account, uint256 amount) external;
     function mint(address account, uint256 amount) external;
-
-    event Transfer(address indexed from, address indexed to, uint256 value);
-    event Approval(address indexed owner, address indexed spender, uint value);
 }
