@@ -7,6 +7,11 @@ import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 
+import "./tasks/addProposal";
+import "./tasks/deposit";
+import "./tasks/finish";
+import "./tasks/vote";
+
 dotenv.config();
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {

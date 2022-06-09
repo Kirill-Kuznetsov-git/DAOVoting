@@ -9,8 +9,7 @@ export async function getContract(hre: HardhatRuntimeEnvironment) {
     } else {
         CONTRACT_ADDRESS = `${process.env.CONTRACT_ADDRESS_GOERLI}`;
     }
-    const accounts = await hre.ethers.getSigners();
-    const signer = accounts[0];
+    const signer = new hre.ethers.Wallet(process.env.PRIVATE_KEY as string, hre.ethers.provider);
     const Factory = await hre.ethers.getContractFactory("DAOVoting", signer);
     return new hre.ethers.Contract(
         CONTRACT_ADDRESS,
@@ -19,8 +18,24 @@ export async function getContract(hre: HardhatRuntimeEnvironment) {
     )
 }
 
+export async function getFunction(hre: HardhatRuntimeEnvironment, title: string) {
+    let CONTRACT_ADDRESS: string
+    if (`${process.env.NETWORK}` == 'LOCALHOST'){
+        CONTRACT_ADDRESS = `${process.env.CONTRACT_ADDRESS_LOCALHOST}`;
+    } else {
+        CONTRACT_ADDRESS = `${process.env.CONTRACT_ADDRESS_GOERLI}`;
+    }
+    const signer = new hre.ethers.Wallet(process.env.PRIVATE_KEY as string, hre.ethers.provider);
+    const Factory = await hre.ethers.getContractFactory("DAOVoting", signer);
+    return Factory.interface.functions[title];
+}
+
 export async function getToken(hre: HardhatRuntimeEnvironment) {
     return await hre.ethers.getContractAt("InterfaceERC20", process.env.TEST_TOKEN_ADDRESS as string);
+}
+
+export async function getSigner(hre: HardhatRuntimeEnvironment) {
+    return new hre.ethers.Wallet(process.env.PRIVATE_KEY as string, hre.ethers.provider);
 }
 
 export async function catchEvent(txWait: any, args: string[]) {

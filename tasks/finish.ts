@@ -1,12 +1,13 @@
 import {task} from "hardhat/config";
 import "@nomiclabs/hardhat-waffle";
-import {getContract, catchEvent} from "./init";
+import {getContract, catchEvent, getSigner} from "./init";
 
 task("finish", "Finish Voting")
     .addParam("id", "Voting ID")
     .setAction(async(taskArgs, hre) => {
-        let res: boolean = taskArgs.value == true;
-        const tx = await (await getContract(hre)).finishProposal(taskArgs.id);
+        const voting = await getContract(hre);
+        const signer = await getSigner(hre);
+        const tx = await voting.connect(signer).finishProposal(taskArgs.id);
 
         const txWait = await (tx).wait();
 
