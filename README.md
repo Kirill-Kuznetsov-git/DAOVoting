@@ -1,34 +1,32 @@
+# Tasks
 ```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-npx hardhat help
-REPORT_GAS=true npx hardhat test
-npx hardhat coverage
-npx hardhat run scripts/deploy.ts
-TS_NODE_FILES=true npx ts-node scripts/deploy.ts
-npx eslint '**/*.{js,ts}'
-npx eslint '**/*.{js,ts}' --fix
-npx prettier '**/*.{json,sol,md}' --check
-npx prettier '**/*.{json,sol,md}' --write
-npx solhint 'contracts/**/*.sol'
-npx solhint 'contracts/**/*.sol' --fix
+npx hardhat addProposal --title <string: title of function> --address <string: address of contract> --value <integer of string: value which set to function> --description <string> --network <localhost or goerli>
+```
+```shell
+npx hardhat deposit --funds <integer: number of tokens> --network <localhost or goerli>
+```
+```shell
+npx hardhat finish --id <integer: id of voting> --network <localhost or goerli>
+```
+```shell
+npx hardhat vote --id <integer: id of voting> --value <false or true: choose of voting> --network <localhost or goerli>
 ```
 
-# Etherscan verification
-
-To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
-
-In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
-
+# Examples of tasks
 ```shell
-hardhat run --network ropsten scripts/deploy.ts
+npx hardhat addProposal --title "setMinimumQuorum(uint256)" --address 0x7c098E457DA8108527bdba11da981100d5293A92 --value 3 --description "change value" --network goerli
 ```
 
-Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
+```shell
+npx hardhat deposit --funds 100 --network goerli
+```
 
 ```shell
-npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
+npx hardhat finish --id 1 --network goerli
 ```
+
+```shell
+npx hardhat vote --id 0 --value true --network goerli
+```
+# Tests
+![](images/tests.png)

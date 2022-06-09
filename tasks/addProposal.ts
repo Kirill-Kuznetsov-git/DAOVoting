@@ -5,7 +5,7 @@ import {getContract, getFunction, getSigner, catchEvent} from "./init";
 task("addProposal", "Add new proposal")
     .addParam("title", "Title of function")
     .addParam("address", "Address of contract")
-    .addParam("value", "Value which used un function")
+    .addParam("value", "Value which used in function")
     .addParam("description", "Description")
     .setAction(async(taskArgs, hre) => {
         const signer = await getSigner(hre);
